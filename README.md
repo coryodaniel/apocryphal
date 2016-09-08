@@ -1,6 +1,6 @@
 # Apocryphal
 
-Swagger document driven ExUnit testing tool for Elixir & Phoenix
+Swagger based document driven development for ExUnit
 
 ## Installation
 
