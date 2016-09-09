@@ -8,4 +8,4 @@ paths:
     get:
       responses:
         200:
-          description: OK
+          description: Its a pretty simple API!

@@ -13,7 +13,7 @@ defmodule ApocryphalTest do
         "get" => %{
           "responses" => %{
             200 => %{
-              "description" => "OK"
+              "description" => "Its a pretty simple API!"
             }
           }
         }
@@ -35,29 +35,4 @@ defmodule ApocryphalTest do
       end
     end
   end
-
-  # describe "when something is doing something" do
-  #   setup [:some_setup_method, :some_other_setup_method]
-  #
-  #   test ...
-  # end
-  #
-  # describe "when something is doing something else" do
-  #   setup [:some_setup_method, :some_other_setup_method]
-  #
-  #   test ...
-  # end
-  #
-  # defp some_setup_method(context) do
-  #   # ...
-  # end
-
-  # import Mock
-  # test "test_name" do
-  #   with_mock HTTPotion, [get: fn(_url) -> "<html></html>" end] do
-  #     HTTPotion.get("http://example.com")
-  #     # Tests that make the expected call
-  #     assert called HTTPotion.get("http://example.com")
-  #   end
-  # end
 end

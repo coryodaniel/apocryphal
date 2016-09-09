@@ -16,7 +16,7 @@ defmodule Apocryphal.Mixfile do
     [
       maintainers: ["Cory O'Daniel"],
       licenses: ["MIT"],
-      files: ~w(lib mix.exs README.md),
+      files: ~w(priv lib mix.exs README.md),
       links: %{"GitHub" => "https://github.com/coryodaniel/apocryphal"}
     ]
   end
@@ -25,7 +25,7 @@ defmodule Apocryphal.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :yaml_elixir, :poison]]
+    [applications: [:logger]]
   end
 
   # Dependencies can be Hex packages:
@@ -45,8 +45,7 @@ defmodule Apocryphal.Mixfile do
      {:credo, "~> 0.4", only: [:dev, :test]},
      {:mock, "~> 0.1.1", only: :test},
 
-     {:yaml_elixir, "~> 1.1"},
-     {:poison, "~> 2.0"}
+     {:yaml_elixir, "~> 1.1"}
    ]
   end
 end
