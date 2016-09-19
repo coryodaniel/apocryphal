@@ -10,7 +10,7 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Init do
     :ok
   end
 
-  test "check folder" do
+  test "creates apocryphal director" do
     dir = Path.join(tmp_path, "test/apocryphal")
     refute File.exists?(dir)
     File.cd! tmp_path, fn -> Mix.Tasks.Apocryphal.Init.run([]) end

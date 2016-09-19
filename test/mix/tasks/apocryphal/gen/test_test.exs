@@ -10,14 +10,6 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Gen.Test do
     :ok
   end
 
-  describe "when no swagger file is provided" do
-    test "outputs usage instructions" do
-      assert_raise Mix.Error, ~r/expects a module name and a swagger file/, fn ->
-        Mix.Tasks.Apocryphal.Gen.Test.run ["V1.MyAPI"]
-      end
-    end
-  end
-
   describe "when a swagger file is provided" do
     test "generates tests" do
       path = path_to_doc("simple.yml")
@@ -26,7 +18,7 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Gen.Test do
         Mix.Tasks.Apocryphal.Gen.Test.run ["V1.Simple", "--swagger-file=#{path}"]
 
         assert_file "test/apocryphal/v1/simple_test.exs", fn file ->
-          assert file =~ ~s(verify "Its a pretty simple API!", "/", :get)
+          assert file =~ ~s(verify "#{path}", "*/*")
         end
       end
     end
@@ -40,12 +32,11 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Gen.Test do
         Mix.Tasks.Apocryphal.Gen.Test.run ["V1.Pets", "--only=^\/pets", "--swagger-file=#{path}"]
 
         assert_file "test/apocryphal/v1/pets_test.exs", fn file ->
-          assert file =~ ~s(verify "List all pets", "/v1/pets", :get)
+          assert file =~ ~s(get "/pets")
           refute file =~ ~s(List of stores)
           refute file =~ ~s("/stores")
         end
       end
     end
   end
-
 end

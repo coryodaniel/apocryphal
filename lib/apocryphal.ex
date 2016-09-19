@@ -1,24 +1,58 @@
 defmodule Apocryphal do
-  @file_formats [
-    {~r/y(a)?ml$/i, :yaml}
-    # {~r/json/i, :json}
-    # {~r/apib/i, :apib}
-  ]
-
   def dir, do: "test/apocryphal"
 
-  def parse(nil), do: raise ArgumentError, "A swagger documentation file is required"
-  def parse(path) do
-    {_, type} = Enum.find(@file_formats, {nil, :unknown}, fn {pattern, _type} ->
-      String.match?(path, pattern)
-    end)
-
-    parse_file({type, path})
+  def serialize(body, mime) do
+    Application.get_env(:apocryphal, :serializers)[mime].(body)
   end
 
-  defp parse_file({:yaml, path}) do
+  def deserialize(body, mime) do
+    Application.get_env(:apocryphal, :deserializers)[mime].(body)
+  end
+
+  @spec parse(String.t) :: Map.t
+  def parse(path) when is_binary(path) do
+    case Path.extname(path) do
+      ".yml"  -> parse_yaml(path)
+      ".yaml" -> parse_yaml(path)
+      ".json" -> parse_json(path)
+      _ -> raise RuntimeError, "Unsupported file type: #{path}"
+    end
+  end
+
+  defp parse_json(path), do: path |> File.read! |> Poison.decode! |> expand
+
+  defp parse_yaml(path) do
     Application.ensure_all_started(:yaml_elixir)
-    path |> File.read! |> YamlElixir.read_from_string
+    path |>
+      YamlElixir.read_from_file |>
+      Apocryphal.Util.stringify_keys |>
+      expand
   end
-  defp parse_file({:unknown, path}), do: raise RuntimeError, "Unsupported file type: #{path}"
+
+  def expand(map) do
+    swagger = ExJsonSchema.Schema.resolve(map)
+    expand(swagger, swagger.schema)
+  end
+
+  defp expand(swagger, %{"$ref" => ref_schema} = schema) when is_map(schema) do
+    Map.merge(
+      Map.delete(schema, "$ref"),
+      ExJsonSchema.Schema.get_ref_schema(swagger, ref_schema)
+    )
+  end
+
+  defp expand(swagger, schema) when is_map(schema) do
+    Enum.reduce(
+      Map.keys(schema), %{},
+      fn(k, acc) ->
+        Map.put(acc, k, expand(swagger, schema[k]))
+      end
+    )
+  end
+
+  defp expand(swagger, list) when is_list(list) do
+    Enum.map list, fn(item) -> expand(swagger, item) end
+  end
+
+  defp expand(_, value), do: value
 end

@@ -12,5 +12,9 @@ defmodule Mix.Tasks.Apocryphal.Init do
 
   def run(_args) do
     create_directory Apocryphal.dir
+
+    #Mix.Project.config |> Keyword.fetch!(:app)
+
+    #Application.get_env(app, :namespace, app)
   end
 end
