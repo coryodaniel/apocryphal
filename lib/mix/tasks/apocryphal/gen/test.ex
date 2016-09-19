@@ -1,6 +1,5 @@
 defmodule Mix.Tasks.Apocryphal.Gen.Test do
   use Mix.Task
-  import Mix.Generator
 
   @shortdoc "Generate apocryphal tests from a Swagger document"
 
@@ -32,13 +31,14 @@ defmodule Mix.Tasks.Apocryphal.Gen.Test do
       Apocryphal.parse(opts[:swagger_file])
     rescue
       ArgumentError -> raise_with_help
-      RuntimeError -> raise_with_help
+      RuntimeError  -> raise_with_help
     end
 
-    binding = inflect(test_module_name) ++ [
-      doc:   opts[:swagger_file],
-      meta:  Map.delete(api, "paths"),
-      paths: filter_paths(api["paths"], opts[:only])
+    binding = Mix.Tasks.Apocryphal.Naming.inflect(test_module_name) ++ [
+      doc: opts[:swagger_file],
+      consumes: api["consumes"] || ["*/*"],
+      paths: filter_paths(api["paths"], opts[:only]),
+      api: api
     ]
 
     check_module_name_availability! binding[:module]
@@ -56,20 +56,8 @@ defmodule Mix.Tasks.Apocryphal.Gen.Test do
     Mix.Generator.create_file(target, contents)
   end
 
-  defp inflect(singular) do
-    base     = "Apocryphal"
-    scoped   = Macro.camelize(singular)
-    path     = Macro.underscore(scoped)
-    singular = path |> String.split("/") |> List.last
-    module   = base |> Module.concat(scoped) |> inspect
-    alias    = module |> String.split(".") |> List.last
-
-    [alias: alias,
-     base: base,
-     module: module,
-     scoped: scoped,
-     singular: singular,
-     path: path]
+  defp validate_args!([]) do
+    raise_with_help()
   end
 
   # TBD?
@@ -77,14 +65,11 @@ defmodule Mix.Tasks.Apocryphal.Gen.Test do
     args
   end
 
-  defp validate_args!([]) do
-    raise_with_help()
-  end
-
   @spec raise_with_help() :: no_return()
   defp raise_with_help do
     Mix.raise """
-    mix apocryphal.gen.test expects a module name and a swagger file to generate tests into:
+    mix apocryphal.gen.test expects a module name and a swagger file to
+    generate tests into:
         mix apocryphal.gen.test V1.Pets -s ./docs/pets_api.yml
     """
   end
@@ -92,7 +77,7 @@ defmodule Mix.Tasks.Apocryphal.Gen.Test do
   defp check_module_name_availability!(name) do
     name = Module.concat(Elixir, name)
     if Code.ensure_loaded?(name) do
-      Mix.raise "Module name #{inspect name} is already taken, please choose another name"
+      Mix.raise "Module name #{name} is already taken. Choose another name."
     end
   end
 

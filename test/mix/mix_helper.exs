@@ -4,7 +4,7 @@ defmodule MixHelper do
   import ExUnit.Assertions
 
   def path_to_doc(name) do
-    Path.join("test/support", name) |> Path.expand
+    "test/support" |> Path.join(name) |> Path.expand
   end
 
   def assert_file(file, match) do
