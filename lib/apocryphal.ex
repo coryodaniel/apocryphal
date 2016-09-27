@@ -13,8 +13,8 @@ defmodule Apocryphal do
     port = Application.get_env(:apocryphal, :port)
     url(host, port, path)
   end
-  def url(nil, port, path), do: raise "Apocryphal host not set"
-  def url(host, nil, path), do: raise "Apocryphal port not set"
+  def url(nil, _, _), do: raise "Apocryphal host not set"
+  def url(_, nil, _), do: raise "Apocryphal port not set"
   def url(host, port, path), do: "http://#{host}:#{port}#{path}"
 
   @doc"""

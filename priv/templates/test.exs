@@ -8,7 +8,7 @@ defmodule <%= app %>Test.<%= module %> do
   # @swagger "./docs/pet_store.yml"
   # @mime "application/json"
   #
-  # test "[GET] /stores (200)" do
+  # test "List of stores" do
   #   %Store{ address: "123 Ship St.",
   #           city: "Los Angeles",
   #           state: "CA",
