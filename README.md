@@ -6,7 +6,7 @@ Swagger based documentation driven development for ExUnit
 
 ```elixir
 def deps do
-  [{:apocryphal, "~> 0.1.0", only: [:test, :dev]}]
+  [{:apocryphal, "~> 0.2.0", only: [:test, :dev]}]
 end
 ```
 
