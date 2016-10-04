@@ -28,16 +28,16 @@ Ecto.Adapters.SQL.Sandbox.mode(PetStore.Repo, :manual)
 Configure `test.exs` env to use Ecto SQL Sandbox and serve content
 
 ```elixir
-config :YOUR_APP, PetStore.Endpoint,
+config :YOUR_APP, YOUR_APP.Endpoint,
   http: [port: 4001],
   server: true
 
 config :YOUR_APP, :sql_sandbox, true
 ```
 
-Configure `lib`
+Configure `lib/YOUR_APP/endpoint.ex`
 ```elixir
-if Application.get_env(:petz, :sql_sandbox) do
+if Application.get_env(:YOUR_APP, :sql_sandbox) do
   plug Phoenix.Ecto.SQL.Sandbox
 end
 ```
