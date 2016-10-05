@@ -1,9 +1,8 @@
 defmodule Apocryphal.Assertions do
-  import ExUnit.Case
   import ExUnit.Assertions
 
   def assert_schema(transaction) when is_map(transaction) do
-    %{request: request, expected: expected} = transaction
+    %{request: _request, expected: expected} = transaction
 
     response = Apocryphal.Transaction.dispatch(transaction)
 

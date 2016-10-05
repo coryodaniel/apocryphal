@@ -2,6 +2,8 @@ defmodule Apocryphal do
   def dir, do: "test/apocryphal"
 
   @doc"""
+  Get the full URL of the server under test.
+
   ## Example
         config :apocryphal,
           port: 4001,
@@ -45,24 +47,52 @@ defmodule Apocryphal do
     Application.get_env(:apocryphal, :deserializers)[mime].(body)
   end
 
+  @doc"""
+  ## Examples
+      iex> Apocryphal.parse("http://example.com/path/to/v1.yaml")
+
+      iex> Apocryphal.parse("http://example.com/path/to/v1.json")
+  """
+  @spec parse(String.t) :: Map.t
+  def parse("http" <> _rest = url) do
+    text = HTTPoison.get!(url).body
+    ext = Path.extname(url)
+    do_parse(text, ext)
+  end
+
+  @doc"""
+  ## Examples
+      iex> Apocryphal.parse("./path/to/v1.yaml")
+
+      iex> Apocryphal.parse("./path/to/v1.json")
+  """
   @spec parse(String.t) :: Map.t
   def parse(path) when is_binary(path) do
-    case Path.extname(path) do
-      ".yml"  -> parse_yaml(path)
-      ".yaml" -> parse_yaml(path)
-      ".json" -> parse_json(path)
-      _ -> raise RuntimeError, "Unsupported file type: #{path}"
+    ext = Path.extname(path)
+
+    path
+    |> File.read!
+    |> do_parse(ext)
+  end
+
+  defp do_parse(text, ext) do
+    case ext do
+      ".yml"  -> parse_yaml(text)
+      ".yaml" -> parse_yaml(text)
+      ".json" -> parse_json(text)
+      _ -> raise RuntimeError, "Unsupported file type: #{ext}"
     end
   end
 
-  defp parse_json(path), do: path |> File.read! |> Poison.decode! |> expand
+  defp parse_json(text), do: text |> Poison.decode! |> expand
 
-  defp parse_yaml(path) do
+  defp parse_yaml(text) do
     Application.ensure_all_started(:yaml_elixir)
-    path |>
-      YamlElixir.read_from_file |>
-      Apocryphal.Util.stringify_keys |>
-      expand
+    text
+    |> YamlElixir.read_from_string
+    #|> YamlElixir.read_from_file
+    |> Apocryphal.Util.stringify_keys
+    |> expand
   end
 
   def expand(map) do
