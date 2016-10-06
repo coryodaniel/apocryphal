@@ -5,7 +5,6 @@ defmodule Apocryphal.Case do
     quote do
       import Apocryphal.Transaction
       import Apocryphal.Assertions
-      use ExUnit.Case, async: true
 
       import Ecto.Model
       import Ecto.Query, only: [from: 2]

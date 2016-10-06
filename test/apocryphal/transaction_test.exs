@@ -1,6 +1,10 @@
 defmodule ApocryphalTest.Transaction do
   use ExUnit.Case, async: true
 
+  describe "dispatch/1" do
+    test ""
+  end
+
   describe "replace_path_params/2" do
     test "replacing a single parameter" do
       path = Apocryphal.Transaction.replace_path_params("/users/{id}", %{"id" => "3"})
@@ -26,17 +30,28 @@ defmodule ApocryphalTest.Transaction do
     end
   end
 
-  describe "build/5 when the response description is not present" do
-    test "sets the description" do
+  describe "build/5" do
+    test "given a swagger doc path, parses the document first" do
+      %{request: request} = Apocryphal.Transaction.build("test/support/pet_store.yml", :get, "/pets", 200, "application/json")
+
+      assert request == %{
+        method: :get,
+        path: "/v1/pets",
+        headers: [{"accept", "application/json"}],
+        params: [],
+        path_params: %{},
+        body: %{}
+      }
+    end
+
+    test "when the response description is not present sets the description" do
       doc = %{"paths" =>
         %{ "/" => %{ "get" => %{ "responses" => %{ "200" => %{} } } } }
       }
       %{description: description} = Apocryphal.Transaction.build(doc, :get, "/", 200, "application/json")
       assert description == "[GET] / (200)"
     end
-  end
 
-  describe "build/5" do
     test "builds an HTTP request" do
       doc = Apocryphal.parse("test/support/pet_store.yml")
       %{request: request} = Apocryphal.Transaction.build(doc, :get, "/pets", 200, "application/json")

@@ -1,16 +1,18 @@
 defmodule Apocryphal.Transaction do
   @http_methods [:get, :post, :put, :patch, :delete, :options, :connect, :trace, :head]
 
+  def describe(verb, path, http_status) do
+    "[#{String.upcase(~s(#{verb}))}] #{path} (#{http_status})"
+  end
+
   for verb <- @http_methods do
-    @doc """
+    @doc"""
     Create a transaction for this request type
     """
     defmacro unquote(verb)(swagger, path, expected_status, mime) do
       verb = unquote(verb)
       quote bind_quoted: binding() do
-        swagger
-          |> Apocryphal.parse
-          |> Apocryphal.Transaction.build(verb, path, expected_status, mime)
+        Apocryphal.Transaction.build(swagger, verb, path, expected_status, mime)
       end
     end
   end
@@ -21,10 +23,11 @@ defmodule Apocryphal.Transaction do
     end
   end
 
-  def dispatch(%{request: request, mime: mime}) do
-    path =  replace_path_params(request.path, request.path_params)
+  def dispatch(%{request: request, mime: mime} = transaction) do
+    url = request.path
+          |> replace_path_params(request.path_params)
+          |> Apocryphal.url
 
-    url = Apocryphal.url(path)
     %{headers: headers, params: params, body: body} = request
 
     body = cond do
@@ -34,13 +37,18 @@ defmodule Apocryphal.Transaction do
 
     headers = add_content_type_header(headers, body, mime)
 
-    {:ok, resp} = HTTPoison.request(request.method, url, body, headers, params: params)
-    resp
+    response = request.method
+               |> HTTPoison.request!(url, body, headers, params: params)
+               |> Apocryphal.Response.build
+
+    transaction
+    |> put_in([:response], response)
   end
 
-  def parse_body(%{body: body, headers: headers}) do
-    mime = Apocryphal.Transaction.extract_mime_from_content_type(headers)
-    Apocryphal.deserialize(body, mime)
+  def build(swagger, verb, path, http_status, mime) when is_binary(swagger) do
+    swagger
+    |> Apocryphal.parse
+    |> Apocryphal.Transaction.build(verb, path, http_status, mime)
   end
 
   def build(swagger, verb, path, http_status, mime) do
@@ -74,17 +82,15 @@ defmodule Apocryphal.Transaction do
     }
   end
 
-  def describe(verb, path, http_status) do
-    "[#{String.upcase(~s(#{verb}))}] #{path} (#{http_status})"
-  end
-
   def extract_mime_from_content_type(headers) do
     content_type = headers
-      |> Enum.into(%{})
-      |> Map.get("content-type")
+    |> Enum.into(%{})
+    |> Map.get("content-type")
 
     if content_type do
-      content_type |> String.split(";") |> List.first
+      content_type
+      |> String.split(";")
+      |> List.first
     else
       nil
     end

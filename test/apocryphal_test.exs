@@ -90,12 +90,86 @@ defmodule ApocryphalTest do
   end
 
   describe "expand/1" do
+    test "" do
+      raw = ~S({
+  "definitions": {
+    "Asset": {
+      "type": "object",
+      "properties": {
+        "legacy_id": {
+          "type": "string"
+        },
+        "inserted_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "AssetAttributes": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "$ref": "#/definitions/Asset"
+        }
+      }
+    },
+    "AssetMetadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "AssetType": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AssetMetadata"
+            },
+            {
+              "$ref": "#/definitions/AssetAttributes"
+            }
+          ]
+        }
+      }
+    }
+  }
+})
+doc = Poison.decode!(raw)
+resolved = Apocryphal.expand(doc)
+
+# resolved["definitions"]["AssetType"]["properties"]["data"]["properties"]
+
+    end
     test "expands JSON Schema references" do
       doc = Apocryphal.parse("test/support/pet_store.yml")
       resolved = Apocryphal.expand(doc)
 
       resolved_schema = resolved["paths"]["/pets/{id}"]["get"]["responses"]["200"]["schema"]
-      referenced_schema = doc["definitions"]["Pet"]
+      referenced_schema = %{
+        "properties" => %{
+          "name" => %{"type" => "string"},
+          "type" => %{"enum" => ["dog", "cat", "bird"]}
+        },
+        "required" => ["name", "type"],
+        "type" => "object"
+      }
       assert resolved_schema == referenced_schema
     end
   end

@@ -90,7 +90,6 @@ defmodule Apocryphal do
     Application.ensure_all_started(:yaml_elixir)
     text
     |> YamlElixir.read_from_string
-    #|> YamlElixir.read_from_file
     |> Apocryphal.Util.stringify_keys
     |> expand
   end
@@ -101,10 +100,11 @@ defmodule Apocryphal do
   end
 
   defp expand(swagger, %{"$ref" => ref_schema} = schema) when is_map(schema) do
-    Map.merge(
-      Map.delete(schema, "$ref"),
-      ExJsonSchema.Schema.get_ref_schema(swagger, ref_schema)
-    )
+    ref = ExJsonSchema.Schema.get_ref_schema(swagger, ref_schema)
+    
+    schema
+    |> Map.delete("$ref")
+    |> Map.merge(expand(swagger, ref))
   end
 
   defp expand(swagger, schema) when is_map(schema) do

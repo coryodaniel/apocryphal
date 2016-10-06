@@ -1,19 +1,14 @@
 defmodule Apocryphal.Assertions do
   import ExUnit.Assertions
 
-  def assert_schema(transaction) when is_map(transaction) do
-    %{request: _request, expected: expected} = transaction
-
-    response = Apocryphal.Transaction.dispatch(transaction)
-
+  def assert_schema(%{expected: expected, response: response} = transaction) do
     assert response.status_code == expected.status_code
+    assert :ok == ExJsonSchema.Validator.validate(expected.schema, response.body)
+  end
 
-    response_body = if response.body do
-      Apocryphal.Transaction.parse_body(response)
-    else
-      %{}
-    end
-
-    assert :ok == ExJsonSchema.Validator.validate(expected.schema, response_body)
+  def assert_schema(transaction) do
+    transaction
+    |> Apocryphal.Transaction.dispatch
+    |> assert_schema
   end
 end

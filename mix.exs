@@ -3,7 +3,7 @@ defmodule Apocryphal.Mixfile do
 
   def project do
     [app: :apocryphal,
-     version: "0.2.1",
+     version: "0.2.3",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
