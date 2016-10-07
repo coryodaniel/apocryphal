@@ -52,12 +52,18 @@ defmodule Apocryphal.Transaction do
   end
 
   def build(swagger, verb, path, http_status, mime) do
-    operation = get_in(swagger, ["paths", path, ~s(#{verb})])
-    parameters = operation["parameters"]
+    full_path = "#{swagger["basePath"]}#{path}"
+    operation_description = describe(verb, full_path, http_status)
 
+    operation = get_in(swagger, ["paths", path, ~s(#{verb})])
+
+    if is_nil(operation), do: raise ArgumentError, "no operation found for #{operation_description}"
+
+    _parameters = operation["parameters"]
     status = ~s(#{http_status})
     %{^status => response} = operation["responses"]
-    full_path = "#{swagger["basePath"]}#{path}"
+
+    if is_nil(response), do: raise ArgumentError, "no response found for #{operation_description}"
 
     request = %{
       method: verb,
@@ -75,7 +81,7 @@ defmodule Apocryphal.Transaction do
     }
 
     %{
-      description: response["description"] || describe(verb, full_path, http_status),
+      description: response["description"] || operation_description,
       expected: expected,
       request: request,
       mime: mime
