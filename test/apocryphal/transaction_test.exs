@@ -5,6 +5,17 @@ defmodule ApocryphalTest.Transaction do
     test ""
   end
 
+  describe "add_request_header/1" do
+    test "" do
+      %{request: request} =
+        "test/support/pet_store.yml"
+        |> Apocryphal.Transaction.build(:get, "/pets", 200, "application/json")
+        |> Apocryphal.Transaction.add_request_header({"Authorization", "Bearer WOOT"})
+
+      assert request.headers == [{"Authorization", "Bearer WOOT"}, {"accept", "application/json"}]
+    end
+  end
+
   describe "replace_path_params/2" do
     test "replacing a single parameter" do
       path = Apocryphal.Transaction.replace_path_params("/users/{id}", %{"id" => "3"})

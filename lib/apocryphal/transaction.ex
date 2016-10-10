@@ -88,6 +88,11 @@ defmodule Apocryphal.Transaction do
     }
   end
 
+  def add_request_header(transaction, header) do
+    transaction
+    |> put_in([:request, :headers], [header | transaction.request.headers])
+  end
+
   def extract_mime_from_content_type(headers) do
     content_type = headers
     |> Enum.into(%{})
@@ -102,7 +107,7 @@ defmodule Apocryphal.Transaction do
     end
   end
 
-  def add_content_type_header(headers, body, mime) do
+  defp add_content_type_header(headers, body, mime) do
     if extract_mime_from_content_type(headers) == nil && body != "" && body != nil && body != %{} do
       headers ++ [{"content-type", mime}]
     else
