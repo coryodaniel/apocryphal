@@ -57,13 +57,14 @@ defmodule Apocryphal.Transaction do
 
     operation = get_in(swagger, ["paths", path, ~s(#{verb})])
 
-    if is_nil(operation), do: raise ArgumentError, "no operation found for #{operation_description}"
+    if is_nil(operation), do: raise ArgumentError, "no operation defined in swagger docs for #{operation_description}"
 
     _parameters = operation["parameters"]
     status = ~s(#{http_status})
-    %{^status => response} = operation["responses"]
 
-    if is_nil(response), do: raise ArgumentError, "no response found for #{operation_description}"
+    response = operation["responses"][status]
+
+    if is_nil(response), do: raise ArgumentError, "no response defined in swagger docs for #{operation_description}"
 
     request = %{
       method: verb,
