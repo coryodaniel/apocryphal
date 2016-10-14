@@ -17,7 +17,7 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Gen.Test do
       in_tmp "generate tests", fn ->
         Mix.Tasks.Apocryphal.Gen.Test.run ["V1.Simple", "--swagger-file=#{path}"]
 
-        assert_file "test/apocryphal/v1/simple_test.exs", fn file ->
+        assert_file "test/acceptance/v1/simple_test.exs", fn file ->
           assert file =~ "[GET] /pets (200)"
         end
       end
@@ -31,7 +31,7 @@ defmodule ApocryphalTest.Mix.Tasks.Apocryphal.Gen.Test do
       in_tmp "generate tests", fn ->
         Mix.Tasks.Apocryphal.Gen.Test.run ["V1.Pets", "--only=^\/pets", "--swagger-file=#{path}"]
 
-        assert_file "test/apocryphal/v1/pets_test.exs", fn file ->
+        assert_file "test/acceptance/v1/pets_test.exs", fn file ->
           assert file =~ "[GET] /pets (200)"
           refute file =~ "[GET] /stores (200)"
         end

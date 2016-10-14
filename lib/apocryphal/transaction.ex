@@ -17,6 +17,11 @@ defmodule Apocryphal.Transaction do
     end
   end
 
+  def set_path_param(transaction, key, value) do
+    new_path = Regex.replace(~r/\{#{key}\}/, transaction.request.path, "#{value}")
+    put_in(transaction, [:request, :path], new_path)
+  end
+
   def replace_path_params(path, params) do
     Enum.reduce params, path, fn({key,value}, acc) ->
       Regex.replace(~r/\{#{key}\}/, acc, "#{value}")

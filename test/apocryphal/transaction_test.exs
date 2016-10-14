@@ -5,6 +5,17 @@ defmodule ApocryphalTest.Transaction do
     test ""
   end
 
+  describe "set_path_param/3" do
+    test "fills in a path parameter" do
+      %{request: request} =
+        "test/support/pet_store.yml"
+        |> Apocryphal.Transaction.build(:get, "/pets/{id}", 200, "application/json")
+        |> Apocryphal.Transaction.set_path_param("id", 3)
+
+      assert request.path == "/v1/pets/3"
+    end
+  end
+
   describe "add_request_header/1" do
     test "" do
       %{request: request} =

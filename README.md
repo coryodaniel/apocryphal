@@ -1,11 +1,12 @@
 TODOs:
 
+* genserver for holding documentation
+* more assertions assert_response, assert_schema, assert_match, assert_headers, assert_documentation(calls response/schema/headers)
+* optionally pass swagger as first argument (defaults to looking in Application.get_env(:apocryphal, :doc_url))
 * smarter approach to remote files
 * easy handler for passing to exjsonschema
 * SUT: config
-* header assertions
 * handling hostname, scheme in json file.
-
 
 # Apocryphal
 

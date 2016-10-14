@@ -1,5 +1,5 @@
 defmodule Apocryphal do
-  def dir, do: "test/apocryphal"
+  def dir, do: "test/acceptance"
 
   @doc"""
   Get the full URL of the server under test.
@@ -101,7 +101,7 @@ defmodule Apocryphal do
 
   defp expand(swagger, %{"$ref" => ref_schema} = schema) when is_map(schema) do
     ref = ExJsonSchema.Schema.get_ref_schema(swagger, ref_schema)
-    
+
     schema
     |> Map.delete("$ref")
     |> Map.merge(expand(swagger, ref))
