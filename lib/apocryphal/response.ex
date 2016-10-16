@@ -13,7 +13,8 @@ defmodule Apocryphal.Response do
 
   defp parse_body(body, mime) do
     case body do
-      nil -> %{}
+      "" -> nil
+      nil -> nil
       body -> Apocryphal.deserialize(body, mime)
     end
   end

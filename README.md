@@ -1,13 +1,3 @@
-TODOs:
-
-* genserver for holding documentation
-* more assertions assert_response, assert_schema, assert_match, assert_headers, assert_documentation(calls response/schema/headers)
-* optionally pass swagger as first argument (defaults to looking in Application.get_env(:apocryphal, :doc_url))
-* smarter approach to remote files
-* easy handler for passing to exjsonschema
-* SUT: config
-* handling hostname, scheme in json file.
-
 # Apocryphal
 
 Swagger based documentation driven development for ExUnit
